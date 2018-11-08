@@ -6,6 +6,36 @@ import (
 	"os/exec"
 )
 
+type ChatAPI interface {
+	SendMessage(message string) ChatAPIResponse
+}
+
+// -- JSON Out to API --
+type chatAPIOut struct {
+	Method string `json:"method"`
+	Params params `json:"params,omitempty"`
+}
+
+type params struct {
+	Options options `json:"options,omitempty"`
+}
+
+type options struct {
+	Channel channel  `json:"channel,omitempty"`
+	Message message  `json:"message,omitempty"`
+}
+
+type channel struct {
+	Name        string `json:"name"`
+	MembersType string `json:"members_type,omitempty"`
+	TopicName   string `json:"topic_name,omitempty"`
+}
+
+type message struct {
+	Body string `json:"body"`
+}
+
+// -- JSON Received back from API --
 type ChatAPIResponse struct {
 	Result chatAPIResult `json:"result,omitempty"`
 	Error  chatAPIError  `json:"error,omitempty"`
@@ -29,6 +59,7 @@ type chatAPIError struct {
 }
 
 func SendChatAPI(jsonData string) ChatAPIResponse {
+	/* Send JSON to Keybase Chat API */
 	log.Println("[SendChatAPI]","[out]", jsonData)
 	cmd := exec.Command("keybase", "chat", "api", "-m", jsonData)
 
