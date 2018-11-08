@@ -17,7 +17,7 @@ type Channel struct {
 
 type chatAPIOut struct {
 	Method string `json:"method"`
-	Params params `json:"params"`
+	Params params `json:"params,omitempty"`
 }
 
 type params struct {
@@ -25,14 +25,14 @@ type params struct {
 }
 
 type options struct {
-	Channel channel  `json:"channel"`
+	Channel channel  `json:"channel,omitempty"`
 	Message message  `json:"message"`
 }
 
 type channel struct {
 	Name        string `json:"name"`
-	MembersType string `json:"members_type"`
-	TopicName   string `json:"topic_name"`
+	MembersType string `json:"members_type,omitempty"`
+	TopicName   string `json:"topic_name,omitempty"`
 }
 
 type message struct {
