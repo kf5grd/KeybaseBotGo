@@ -5,6 +5,6 @@ import (
 )
 
 func main() {
-	u := api.User{Name: "dxb"}
+	u := api.Channel{Name: "dxb"}
 	u.SendMessage("It works!!!")
 }
