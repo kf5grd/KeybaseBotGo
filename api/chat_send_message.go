@@ -41,7 +41,7 @@ type Message struct {
 
 func (u User) SendMessage(message string) ChatAPIResponse {
 	var msgJSON ChatAPIOut
-	log.Printf("[ChatAPI.SendMessage] [IsTeam: %v] [Name: %s] [Channel: %s] [Message: %s]\n", u.IsTeam, u.Name, u.Name, message)
+	log.Printf("[ChatAPI.SendMessage] [IsTeam: %v] [Name: %s] [Channel: %s] [Message: %s]\n", u.IsTeam, u.Name, u.Channel, message)
 
 	msgJSON.Method                             = "send"
 	msgJSON.Params.Options.Channel.Name        = u.Name
