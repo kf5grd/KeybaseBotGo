@@ -18,7 +18,7 @@ type teamAPIResult struct {
 
 type teamAPIError struct {
 	Code    int    `json:"code"`
-	Message String `json:"message"`
+	Message string `json:"message"`
 }
 
 func SendTeamAPI(jsonData string) TeamAPIResponse {
@@ -33,7 +33,7 @@ func SendTeamAPI(jsonData string) TeamAPIResponse {
 	var retVal TeamAPIResponse
 	json.Unmarshal(cmdOut, &retVal)
 
-	if retVal.Error != nil {
+	if retVal.Error.Message != "" {
 		log.Printf(
 			"[SendTeamAPI] [in] [Error] [Code: %d] [Message: %s]\n",
 			retVal.Error.Code,
