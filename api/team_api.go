@@ -6,14 +6,51 @@ import (
 	"os/exec"
 )
 
+type TeamAPI interface {
+	ListMembers() TeamAPIResponse
+}	
+
+// -- JSON Out to API --
+type teamAPIOut struct {
+	Method string     `json:"method"`
+	Params teamParams `json:"params,omitempty"`
+}
+
+type teamParams struct {
+	Options teamOptions `json:"options,omitempty"`
+}
+
+type teamOptions struct {
+	Team string `json:"team,omitempty"`
+}
+
+// -- JSON Received back from API --
 type TeamAPIResponse struct {
 	Result teamAPIResult `json:"result,omitempty"`
 	Error  teamAPIError  `json:"error,omitempty"`
 }
 
 type teamAPIResult struct {
-	ChatSent     bool `json:"chatSent"`
-	CreatorAdded bool `json:"creatorAdded"`
+	ChatSent     bool `json:"chatSent,omitempty"`
+	CreatorAdded bool `json:"creatorAdded,omitempty"`
+
+	// list-user-memberships
+	Members teamMembers `json:"members,omitempty"`
+}
+
+type teamMembers struct {
+	owners  []teamMember `json:"owners,omitempty"`
+	admins  []teamMember `json:"admins,omitempty"`
+	readers []teamMember `json:"readers,omitempty"`
+	writers []teamMember `json:"writers,omitempty"`
+}
+
+type teamMember struct {
+	uv       teamMemberUV `json:"uv,omitempty"`
+	Username string       `json:"username,omitempty"`
+	FullName string       `json:"fullname,omitempty"`
+	needspuk bool         `json:"needsPUK,omitempty"`
+	status   int          `json:"status,omitempty"`
 }
 
 type teamAPIError struct {
