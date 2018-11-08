@@ -25,7 +25,7 @@ type ChatAPIResultLimits struct {
 func SendChatAPI(jsonData string) ChatAPIResponse {
 	log.Println("[SendChatAPI]","[out]", jsonData)
 	cmd := exec.Command("keybase", "chat", "api", "-m", jsonData)
-	
+
 	cmdOut, err := cmd.Output()
 	if err != nil {
 		panic(err)
@@ -34,6 +34,6 @@ func SendChatAPI(jsonData string) ChatAPIResponse {
 	var retVal ChatAPIResponse
 	json.Unmarshal(cmdOut, &retVal)
 
-	log.Printf("[SendChatAPI] [in] [Tank: %s] [Capacity: %d] [Reset: %d] [Gas: %d]", retVal.Result.RateLimits.Tank, retVal.Result.RateLimits.Capacity, retVal.Result.RateLimits.Reset, retVal.Result.RateLimits.Gas)
+	log.Printf("[SendChatAPI] [in] [Tank: %s] [Capacity: %d] [Reset: %d] [Gas: %d]", retVal.Result.RateLimits[0].Tank, retVal.Result.RateLimits[0].Capacity, retVal.Result.RateLimits[0].Reset, retVal.Result.RateLimits[0].Gas)
 	return retVal
 }

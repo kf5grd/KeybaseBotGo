@@ -6,8 +6,13 @@ import (
 )
 
 type ChatAPI interface {
-	SendTeamMsg(team channel, message string) ChatAPIResponse
-	SendUserMsg(user, message string) ChatAPIResponse
+	SendMessage(message string) ChatAPIResponse
+}
+
+type User struct {
+	IsTeam  bool
+	Name    string
+	Channel string
 }
 
 type ChatAPIOut struct {
@@ -34,28 +39,20 @@ type Message struct {
 	Body string `json:"body"`
 }
 
-func (j ChatAPIOut) SendTeamMsg(team, channel, message string) ChatAPIResponse {
-	log.Printf("[ChatAPI.SendTeamMessage] [Team: %s] [Channel: %s] [Message: %s]\n", team, channel, message)
+func (u User) SendMessage(message string) ChatAPIResponse {
+	var msgJSON ChatAPIOut
+	log.Printf("[ChatAPI.SendMessage] [IsTeam: %v] [Name: %s] [Channel: %s] [Message: %s]\n", u.IsTeam, u.Name, u.Name, message)
 
-	j.Method                             = "send"
-	j.Params.Options.Channel.MembersType = "team"
-	j.Params.Options.Channel.Name        = team
-	j.Params.Options.Channel.TopicName   = channel
-	j.Params.Options.Message.Body        = message
+	msgJSON.Method                             = "send"
+	msgJSON.Params.Options.Channel.Name        = u.Name
+	msgJSON.Params.Options.Message.Body        = message
 
-	jsonBytes, _ := json.Marshal(j)
+	if u.IsTeam {
+		msgJSON.Params.Options.Channel.MembersType = "team"
+		msgJSON.Params.Options.Channel.TopicName   = u.Channel
+	}
 
-	return SendChatAPI(string(jsonBytes))
-}
-
-func (j ChatAPIOut) SendUserMsg(user, message string) ChatAPIResponse {
-	log.Printf("[ChatAPI.SendTeamMessage] [User: %s] [Message: %s]\n", user, message)
-
-	j.Method                      = "send"
-	j.Params.Options.Channel.Name = user
-	j.Params.Options.Message.Body = message
-
-	jsonBytes, _ := json.Marshal(j)
+	jsonBytes, _ := json.Marshal(msgJSON)
 
 	return SendChatAPI(string(jsonBytes))
 }
