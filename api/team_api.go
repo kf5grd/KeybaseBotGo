@@ -39,18 +39,23 @@ type teamAPIResult struct {
 }
 
 type teamMembers struct {
-	owners  []teamMember `json:"owners,omitempty"`
-	admins  []teamMember `json:"admins,omitempty"`
-	readers []teamMember `json:"readers,omitempty"`
-	writers []teamMember `json:"writers,omitempty"`
+	Owners  []TeamMember `json:"owners,omitempty"`
+	Admins  []TeamMember `json:"admins,omitempty"`
+	Readers []TeamMember `json:"readers,omitempty"`
+	Writers []TeamMember `json:"writers,omitempty"`
 }
 
-type teamMember struct {
+type TeamMember struct {
 	uv       teamMemberUV `json:"uv,omitempty"`
 	Username string       `json:"username,omitempty"`
 	FullName string       `json:"fullname,omitempty"`
 	needspuk bool         `json:"needsPUK,omitempty"`
 	status   int          `json:"status,omitempty"`
+}
+
+type teamMemberUV struct {
+	uid         string `json:"uid,omitempty"`
+	eldestSeqno int    `json:"eldestSeqno,omitempty"`
 }
 
 type teamAPIError struct {
