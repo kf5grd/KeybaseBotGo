@@ -4,15 +4,13 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+
+	"fmt"
 )
 
 type KeybotConfig interface {
-	Read() ConfigJSON
-	Write()
-}
-
-type ConfigFile struct {
-	Path string
+	Read(filename string)
+	Write(filename string)
 }
 
 type ConfigJSON struct {
@@ -32,19 +30,27 @@ type configUserPrivilege struct {
 	Role     string `json:"role"`
 }
 
-func (c ConfigFile) Read() ConfigJSON {
-	configFile, err := os.Open(c.Path)
+func (c *ConfigJSON) Read(filename string) {
+	configFile, err := os.Open(filename)
 	if err != nil {
 		panic(err)
 	}
 	defer configFile.Close()
 	jsonBytes, _ := ioutil.ReadAll(configFile)
 
-	var retVal ConfigJSON
-	json.Unmarshal([]byte(jsonBytes), &retVal)
-
-	return retVal
+	json.Unmarshal([]byte(jsonBytes), &c)
 }
 
-func (c ConfigFile) Write() {
+func (c ConfigJSON) Write(filename string) {
+	configFile, err := os.Open(filename)
+	if err != nil {
+		panic(err)
+	}
+	defer configFile.Close()
+
+	jsonBytes, _ := json.MarshalIndent(c, "", "  ")
+	_, err = configFile.Write(jsonBytes)
+	if err != nil {
+		panic(err)
+	}
 }
