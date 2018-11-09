@@ -10,12 +10,15 @@ func main() {
 	u := api.Channel{Name: "dxb"}
 	t := api.Team{Name: "crbot.public"}
 
-	members := t.ListMembers()
-
-	msg := "```\n"
-	for i, member := range members {
-		msg += fmt.Sprintf("%d: %s, %s\n", i, member.Username, member.Role)
+	members := map[string]string{
+		"cagingroyals": "admin",
 	}
-	msg += "```"
-	u.SendMessage(msg)
+
+	teamAdd := t.AddMembers(members)
+	if teamAdd.Error.Message != "" {
+		u.SendMessage(teamAdd.Error.Message)
+	} else {
+		msg := fmt.Sprintf("Users successfully added to team `%s`.", t.Name)
+		u.SendMessage(msg)
+	}
 }

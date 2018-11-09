@@ -7,6 +7,7 @@ import (
 )
 
 type TeamAPI interface {
+	AddMembers(members map[string]string) TeamAPIResponse
 	ListMembers() TeamAPIResponse
 }	
 
@@ -25,7 +26,19 @@ type teamParams struct {
 }
 
 type teamOptions struct {
-	Team string `json:"team,omitempty"`
+	Team      string         `json:"team,omitempty"`
+	Emails    []TeamEmail    `json:"emails,omitempty"`
+	Usernames []TeamUsername `json:"usernames,omitempty"`
+}
+
+type TeamEmail struct {
+	Email string `json:"email"`
+	Role  string `json:"role,omitempty"`
+}
+
+type TeamUsername struct {
+	Username string `json:"username"`
+	Role     string `json:"role,omitempty"`
 }
 
 // -- JSON Received back from API --
