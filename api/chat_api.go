@@ -12,26 +12,26 @@ type ChatAPI interface {
 
 // -- JSON Out to API --
 type chatAPIOut struct {
-	Method string `json:"method"`
-	Params params `json:"params,omitempty"`
+	Method string     `json:"method"`
+	Params chatParams `json:"params,omitempty"`
 }
 
-type params struct {
+type chatParams struct {
 	Options options `json:"options,omitempty"`
 }
 
 type options struct {
-	Channel channel  `json:"channel,omitempty"`
-	Message message  `json:"message,omitempty"`
+	Channel chatChannel  `json:"channel,omitempty"`
+	Message chatMessage  `json:"message,omitempty"`
 }
 
-type channel struct {
+type chatChannel struct {
 	Name        string `json:"name"`
 	MembersType string `json:"members_type,omitempty"`
 	TopicName   string `json:"topic_name,omitempty"`
 }
 
-type message struct {
+type chatMessage struct {
 	Body string `json:"body"`
 }
 
