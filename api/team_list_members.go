@@ -5,10 +5,6 @@ import (
 	"log"
 )
 
-type Team struct {
-	Name string
-}
-
 type Member struct {
 	Username string
 	FullName string

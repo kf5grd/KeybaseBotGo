@@ -10,6 +10,10 @@ type TeamAPI interface {
 	ListMembers() TeamAPIResponse
 }	
 
+type Team struct {
+	Name string
+}
+
 // -- JSON Out to API --
 type teamAPIOut struct {
 	Method string     `json:"method"`
