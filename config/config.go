@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
-
-	"fmt"
 )
 
 type KeybotConfig interface {
@@ -15,7 +13,7 @@ type KeybotConfig interface {
 
 type ConfigJSON struct {
 	BotOwner    string             `json:"botOwner"`
-	ActiveTeams []configActiveTeam `json:"activeTeams"`
+	ActiveTeams []configActiveTeam `json:"activeTeams,omitempty"`
 }
 
 type configActiveTeam struct {
@@ -26,8 +24,13 @@ type configActiveTeam struct {
 }
 
 type configUserPrivilege struct {
-	Username string `json:"username"`
-	Role     string `json:"role"`
+	Username       string `json:"username"`
+	SetUserPriv    bool   `json:"setUserPriv"`
+	AddUsers       bool   `json:"addUsers"`
+	KickUsers      bool   `json:"kickUsers"`
+	CreateChannels bool   `json:"createChannels"`
+	DeleteChannels bool   `json:"deleteChannels"`
+	SetTopic       bool   `json:"setTopic"`
 }
 
 func (c *ConfigJSON) Read(filename string) {
@@ -42,7 +45,7 @@ func (c *ConfigJSON) Read(filename string) {
 }
 
 func (c ConfigJSON) Write(filename string) {
-	configFile, err := os.Open(filename)
+	configFile, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		panic(err)
 	}

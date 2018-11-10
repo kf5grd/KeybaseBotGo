@@ -2,23 +2,33 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"keybot/api"
+	"keybot/config"
+)
+
+const(
+	ConfigFile = "config.json"
 )
 
 func main() {
+	c := config.ConfigJSON{}
+
+	// Create default config if none exists
+	if _, err := os.Stat(ConfigFile); os.IsNotExist(err) {
+		c.Write(ConfigFile)
+	}
+
+	// Read config file
+	c.Read(ConfigFile)
+
 	u := api.Channel{Name: "dxb"}
-	t := api.Team{Name: "crbot.public"}
+	message := fmt.Sprintf("Bot owner: %s", c.BotOwner)
+	u.SendMessage(message)
 
-	members := map[string]string{
-		"cagingroyals": "admin",
-	}
-
-	teamAdd := t.AddMembers(members)
-	if teamAdd.Error.Message != "" {
-		u.SendMessage(teamAdd.Error.Message)
-	} else {
-		msg := fmt.Sprintf("Users successfully added to team `%s`.", t.Name)
-		u.SendMessage(msg)
-	}
+	c.BotOwner = "SomeOtherGuy"
+	c.Write(ConfigFile)
+	message = fmt.Sprintf("New bot owner: %s", c.BotOwner)
+	u.SendMessage(message)
 }
