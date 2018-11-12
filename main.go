@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"keybot/api"
 	"keybot/config"
+	"keybot/parser"
 )
 
 const(
 	ConfigFile = "config.json"
+	CommandPrefix = "."
 )
 
 func main() {
@@ -32,8 +35,15 @@ func main() {
 	scanner := bufio.NewScanner(keybaseOutput)
 	for scanner.Scan() {
 		messageIn := api.ReceiveMessage(scanner.Text())
-		user := messageIn.Msg.Sender.Username
-		message := messageIn.Msg.Content.Text.Body
-		fmt.Println(user + ":", message)
+		message := strings.TrimSpace(messageIn.Msg.Content.Text.Body)
+		if strings.HasPrefix(message, CommandPrefix) {
+			message = strings.TrimPrefix(message, CommandPrefix)
+			args := parser.GetArgs(message)
+			printArgs := ""
+			for _, arg := range args[1:] {
+				printArgs += fmt.Sprintf("  %s\n", arg)
+			}
+			fmt.Printf("----\ncommand: %s\nArguments:\n%s\n----", args[0], printArgs)
+		}
 	}
 }
