@@ -5,13 +5,7 @@ import (
 	"log"
 )
 
-type Member struct {
-	Username string
-	FullName string
-	Role     string
-}
-
-func (t Team) ListMembers() []Member {
+func (t Team) ListMembers() map[string]string {
 	var msgJSON teamAPIOut
 
 	log.Printf(
@@ -24,7 +18,7 @@ func (t Team) ListMembers() []Member {
 
 	jsonBytes, _ := json.Marshal(msgJSON)
 	apiResp := SendTeamAPI(string(jsonBytes))
-	var retVal []Member
+	retVal := make(map[string]string)
 	type members []TeamMember
 	
 	roles := map[string]members{
@@ -36,12 +30,7 @@ func (t Team) ListMembers() []Member {
 
 	for role, memberList := range roles {
 		for _, member := range memberList {
-			var newMember = Member{
-				Username: member.Username,
-				FullName: member.FullName,
-				Role:     role,
-			}
-			retVal = append(retVal, newMember)
+			retVal[member.Username] = role
 		}
 	}
 

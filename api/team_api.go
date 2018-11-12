@@ -8,7 +8,7 @@ import (
 
 type TeamAPI interface {
 	AddMembers(members map[string]string) TeamAPIResponse
-	ListMembers() TeamAPIResponse
+	ListMembers() map[string]string
 }	
 
 type Team struct {
