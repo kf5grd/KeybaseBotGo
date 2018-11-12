@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 
 	"keybot/api"
 	"keybot/config"
@@ -23,12 +25,15 @@ func main() {
 	// Read config file
 	c.Read(ConfigFile)
 
-	u := api.Channel{Name: "dxb"}
-	message := fmt.Sprintf("Bot owner: %s", c.BotOwner)
-	u.SendMessage(message)
-
-	c.BotOwner = "SomeOtherGuy"
-	c.Write(ConfigFile)
-	message = fmt.Sprintf("New bot owner: %s", c.BotOwner)
-	u.SendMessage(message)
+	// spawn keybase chat listener and process messages as they come in
+	keybaseListen := exec.Command("keybase", "chat", "api-listen", "--local")
+	keybaseOutput, _ := keybaseListen.StdoutPipe()
+	keybaseListen.Start()
+	scanner := bufio.NewScanner(keybaseOutput)
+	for scanner.Scan() {
+		messageIn := api.ReceiveMessage(scanner.Text())
+		user := messageIn.Msg.Sender.Username
+		message := messageIn.Msg.Content.Text.Body
+		fmt.Println(user + ":", message)
+	}
 }
