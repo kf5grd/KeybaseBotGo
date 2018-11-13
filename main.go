@@ -38,12 +38,24 @@ func main() {
 		message := strings.TrimSpace(messageIn.Msg.Content.Text.Body)
 		if strings.HasPrefix(message, CommandPrefix) {
 			message = strings.TrimPrefix(message, CommandPrefix)
-			args := parser.GetArgs(message)
-			printArgs := ""
-			for _, arg := range args[1:] {
-				printArgs += fmt.Sprintf("  %s\n", arg)
+			args, err := parser.GetArgs(message)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				sendMessage := fmt.Sprintf("Command: %s", args[0])
+				if len(args) > 1 {
+					sendMessage += ", Args: ["
+					for i, arg := range args[1:] {
+						sendMessage += fmt.Sprintf("\"%s\"", arg)
+						if i != (len(args[1:]) - 1) {
+							sendMessage += ", "
+						}
+					}
+					sendMessage += "]"
+				}
+				m := api.Channel{Name: messageIn.Msg.Channel.Name, Channel: messageIn.Msg.Channel.TopicName, IsTeam: true}
+				m.SendMessage(sendMessage)
 			}
-			fmt.Printf("----\ncommand: %s\nArguments:\n%s\n----", args[0], printArgs)
 		}
 	}
 }
