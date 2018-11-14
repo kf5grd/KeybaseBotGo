@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"os"
 	"os/exec"
 
 	"keybot/api"
@@ -15,11 +14,6 @@ const(
 
 func main() {
 	c := config.ConfigJSON{}
-
-	// Create default config if none exists
-	if _, err := os.Stat(c.Filename); os.IsNotExist(err) {
-		c.Write()
-	}
 
 	// Read config file
 	c.Read()

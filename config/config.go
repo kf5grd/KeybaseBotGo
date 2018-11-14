@@ -38,12 +38,16 @@ type ConfigUserPrivilege struct {
 }
 
 func (c *ConfigJSON) Read() {
-	filename := c.Filename
-	if filename == "" {
-		filename = defaultFilename
+	if c.Filename == "" {
+		c.Filename = defaultFilename
 	}
 
-	configFile, err := os.Open(filename)
+	// Create default config if none exists
+	if _, err := os.Stat(c.Filename); os.IsNotExist(err) {
+		c.Write()
+	}
+
+	configFile, err := os.Open(c.Filename)
 	if err != nil {
 		panic(err)
 	}
@@ -54,12 +58,11 @@ func (c *ConfigJSON) Read() {
 }
 
 func (c ConfigJSON) Write() {
-	filename := c.Filename
-	if filename == "" {
-		filename = defaultFilename
+	if c.Filename == "" {
+		c.Filename = defaultFilename
 	}
 
-	configFile, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0644)
+	configFile, err := os.OpenFile(c.Filename, os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		panic(err)
 	}
