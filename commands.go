@@ -144,6 +144,43 @@ func cmdConfig(args []string, message api.ChatMessageIn, config *config.ConfigJS
 			response = strings.TrimSuffix(response, "\n")
 			config.Write()
 		case "remove":
+			if len(args) < 4 {
+				return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - No users provided.", args[1])}
+			}
+			if config.Blacklist == nil {
+				config.Blacklist = make(map[string]struct{})
+				config.Write()
+			}
+
+			removed := ""
+			notremoved := ""
+			for _, user := range args[3:] {
+				if _, ok := config.Blacklist[user]; !ok {
+					notremoved += fmt.Sprintf("%s, ", user)
+				} else {
+					removed += fmt.Sprintf("%s, ", user)
+					delete(config.Blacklist, user)
+				}
+			}
+			havehas := "has"
+			isare := "is"
+			response = ""
+			if removed != "" {
+				removed = strings.TrimSuffix(removed, ", ")
+				if strings.Contains(removed, ",") {
+					havehas = "have"
+				}
+				response += fmt.Sprintf("%s %s been removed from the blacklist.\n", removed, havehas)
+			}
+			if notremoved != "" {
+				notremoved = strings.TrimSuffix(notremoved, ", ")
+				if strings.Contains(notremoved, ",") {
+					isare = "are"
+				}
+				response += fmt.Sprintf("%s %s not on the blacklist.", notremoved, isare)
+			}
+			response = strings.TrimSuffix(response, "\n")
+			config.Write()
 		case "read":
 			if config.Blacklist == nil {
 				config.Blacklist = make(map[string]struct{})
