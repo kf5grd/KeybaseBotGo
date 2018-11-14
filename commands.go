@@ -168,6 +168,11 @@ func init() {
 }
 
 func commandHandler(message api.ChatMessageIn, c *config.ConfigJSON) {
+	// if user is blacklisted, do nothing
+	if _, ok := c.Blacklist[message.Msg.Sender.Username]; ok {
+		return
+	}
+
 	// Get channel details
 	var chat = api.Channel{Name: message.Msg.Channel.Name}
 	if message.Msg.Channel.MembersType == "team" {
