@@ -17,7 +17,7 @@ type cmdError struct {
 func (e *cmdError) Error() string {
 	return fmt.Sprintf("%s: %s", e.command, e.message)
 }
-func cmdHelp(args []string, message api.ChatMessageIn, config config.ConfigJSON) (parser.CmdOut, error) {
+func cmdHelp(args []string, message api.ChatMessageIn, config *interface{}) (parser.CmdOut, error) {
 	var (
 		channel api.Channel
 		response string
@@ -38,7 +38,7 @@ func cmdHelp(args []string, message api.ChatMessageIn, config config.ConfigJSON)
 	return parser.CmdOut{response, channel}, nil
 }
 
-func cmdPing(args []string, message api.ChatMessageIn, config config.ConfigJSON) (parser.CmdOut, error) {
+func cmdPing(args []string, message api.ChatMessageIn, config *interface{}) (parser.CmdOut, error) {
 	var (
 		channel api.Channel
 		response string
@@ -63,7 +63,7 @@ func cmdPing(args []string, message api.ChatMessageIn, config config.ConfigJSON)
 	return parser.CmdOut{response, channel}, nil
 }
 
-func cmdConfig(args []string, message api.ChatMessageIn, config config.ConfigJSON) (parser.CmdOut, error) {
+func cmdConfig(args []string, message api.ChatMessageIn, config *interface{}) (parser.CmdOut, error) {
 	var (
 		channel api.Channel
 		response string
@@ -124,7 +124,7 @@ func init() {
 	parser.RegisterCommand("config", "Get and set config values.", true, true, cmdConfig)
 }
 
-func commandHandler(message api.ChatMessageIn, c config.ConfigJSON) {
+func commandHandler(message api.ChatMessageIn, c *interface{}) {
 	// Get channel details
 	var chat = api.Channel{Name: message.Msg.Channel.Name}
 	if message.Msg.Channel.MembersType == "team" {
