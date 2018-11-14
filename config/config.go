@@ -12,18 +12,18 @@ type KeybotConfig interface {
 }
 
 type ConfigJSON struct {
-	BotOwner    string             `json:"botOwner"`
-	ActiveTeams []configActiveTeam `json:"activeTeams,omitempty"`
+	BotOwner    string                      `json:"botOwner"`
+	ActiveTeams map[string]ConfigActiveTeam `json:"activeTeams,omitempty"`
 }
 
-type configActiveTeam struct {
+type ConfigActiveTeam struct {
 	TeamName       string                `json:"teamName"`
 	TeamOwner      string                `json:"teamOwner"`
-	UserPrivileges []configUserPrivilege `json:"userPrivileges"`
+	UserPrivileges []ConfigUserPrivilege `json:"userPrivileges"`
 	ActiveChannels []string              `json:"activeChannels"`
 }
 
-type configUserPrivilege struct {
+type ConfigUserPrivilege struct {
 	Username       string `json:"username"`
 	SetUserPriv    bool   `json:"setUserPriv"`
 	AddUsers       bool   `json:"addUsers"`

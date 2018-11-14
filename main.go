@@ -17,35 +17,6 @@ const(
 	CommandPrefix = "."
 )
 
-func cmdTest(args []string, message api.ChatMessageIn, config config.ConfigJSON) (parser.CmdOut, error) {
-	var (
-		channel api.Channel
-		response string
-	)
-
-	if len(args) == 1 {
-		response = "pong"
-	} else {
-		response = "ping "
-		for _, u := range args[1:] {
-			response += fmt.Sprintf("@%s, ", u)
-		}
-		response = strings.TrimSuffix(response, ", ")
-	}
-	
-	switch message.Msg.Channel.MembersType {
-	case "team":
-		channel = api.Channel{true, message.Msg.Channel.Name, message.Msg.Channel.TopicName}
-	default:
-		channel = api.Channel{Name: message.Msg.Channel.Name}
-	}
-	return parser.CmdOut{response, channel}, nil
-}
-
-func init() {
-	parser.RegisterCommand("ping", "Responds with 'pong'", true, true, cmdTest)
-}
-
 func main() {
 	c := config.ConfigJSON{}
 
@@ -56,6 +27,14 @@ func main() {
 
 	// Read config file
 	c.Read(ConfigFile)
+
+	c.ActiveTeams = make(map[string]config.ConfigActiveTeam)
+	c.ActiveTeams["crbot.public"] = config.ConfigActiveTeam{
+		TeamName: "crbot.public",
+		TeamOwner: "dxb",
+		ActiveChannels: []string{"bots", "test"},
+	}
+	c.Write(ConfigFile)
 
 	// spawn keybase chat listener and process messages as they come in
 	keybaseListen := exec.Command("keybase", "chat", "api-listen", "--local")
@@ -71,7 +50,21 @@ func main() {
 			if err != nil {
 				fmt.Println(err)
 			} else {
-				if cmd, ok := parser.Commands[args[0]]; ok {
+				team := messageIn.Msg.Channel.Name
+				channel := messageIn.Msg.Channel.TopicName
+				
+				isActiveChannel := false
+				_, isActiveTeam := c.ActiveTeams[messageIn.Msg.Channel.Name]
+				if isActiveTeam {
+					for _, ch := range c.ActiveTeams[team].ActiveChannels {
+						if ch == channel {
+							isActiveChannel = true
+						}
+					}
+				}
+
+				cmd, isCommand := parser.Commands[args[0]]
+				if isCommand && isActiveChannel {
 					m, err := cmd.CmdFunc(args, messageIn, c)
 					if err != nil {
 						fmt.Println(err)
