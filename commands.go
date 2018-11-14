@@ -25,7 +25,7 @@ func cmdHelp(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 
 	for _, command := range parser.Commands {
 		if command.ShowHelp {
-			response += fmt.Sprintf("`%s%s` - %s\n", CommandPrefix, command.Command, command.HelpText)
+			response += fmt.Sprintf("`%s%s`\n  %s\n", CommandPrefix, command.Command, command.HelpText)
 		}
 	}
 
@@ -44,15 +44,7 @@ func cmdPing(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 		response string
 	)
 
-	if len(args) == 1 {
-		response = "pong"
-	} else {
-		response = "ping "
-		for _, u := range args[1:] {
-			response += fmt.Sprintf("@%s, ", u)
-		}
-		response = strings.TrimSuffix(response, ", ")
-	}
+	response = "pong"
 	
 	switch message.Msg.Channel.MembersType {
 	case "team":
@@ -101,6 +93,18 @@ func cmdConfig(args []string, message api.ChatMessageIn, config *config.ConfigJS
 	case "blacklist":
 		switch strings.ToLower(args[2]) {
 		case "add":
+			if len(args) < 4 {
+				return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - No users provided.", args[1])}
+			}
+			if config.Blacklist == nil {
+				config.Blacklist = make(map[string]struct{})
+				config.Write()
+			}
+
+			var (
+				added string
+				notadded string
+			)
 		case "remove":
 		case "read":
 			if config.Blacklist == nil {
@@ -109,7 +113,7 @@ func cmdConfig(args []string, message api.ChatMessageIn, config *config.ConfigJS
 			}
 			if len(config.Blacklist) > 0 {
 				response = "Blacklisted users:\n```\n"
-				for _, user := range config.Blacklist {
+				for user, _ := range config.Blacklist {
 					response += fmt.Sprintln(user)
 				}
 				response += "```"
