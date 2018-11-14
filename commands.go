@@ -69,6 +69,10 @@ func cmdConfig(args []string, message api.ChatMessageIn, config config.ConfigJSO
 		response string
 	)
 
+	if message.Msg.Sender.Username != config.BotOwner {
+		return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You do not have permission to configure this bot.", message.Msg.Sender.Username)}
+	}
+
 	if len(args) < 2 {
 		return parser.CmdOut{}, &cmdError{args[0], "Missing arguments."}
 	}
@@ -80,6 +84,16 @@ func cmdConfig(args []string, message api.ChatMessageIn, config config.ConfigJSO
 		}
 		switch strings.ToLower(args[2]) {
 		case "botowner":
+			return parser.CmdOut{}, &cmdError{args[0], "'botOwner' must be set in config file directly."}
+		case "blacklist":
+			switch strings.ToLower(args[3]) {
+			case "add":
+			case "remove":
+			default:
+				return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - Invalid action.", args[3])}
+			}
+		default:
+			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - No such variable.", args[2])}
 		}
 	case "get":
 		if len(args) < 3 {
@@ -88,9 +102,11 @@ func cmdConfig(args []string, message api.ChatMessageIn, config config.ConfigJSO
 		switch strings.ToLower(args[2]) {
 		case "botowner":
 			response = fmt.Sprintf("botOwner: %s", config.BotOwner)
+		default:
+			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - No such variable.", args[2])}
 		}
 	default:
-		return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - Invalid command.")}
+		return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - Invalid command.", args[1])}
 	}
 
 	switch message.Msg.Channel.MembersType {
@@ -106,4 +122,44 @@ func init() {
 	parser.RegisterCommand("help", "", false, true, cmdHelp)
 	parser.RegisterCommand("ping", "Responds with 'pong'", true, true, cmdPing)
 	parser.RegisterCommand("config", "Get and set config values.", true, true, cmdConfig)
+}
+
+func commandHandler(message api.ChatMessageIn, c config.ConfigJSON) {
+	// Get channel details
+	var chat = api.Channel{Name: message.Msg.Channel.Name}
+	if message.Msg.Channel.MembersType == "team" {
+		chat.IsTeam = true
+		chat.Channel = message.Msg.Channel.TopicName
+	}
+
+	switch strings.ToLower(message.Msg.Content.MsgType) {
+	case "text":
+		msgText := strings.TrimSpace(message.Msg.Content.Text.Body)
+		if strings.HasPrefix(msgText, CommandPrefix) {
+			msgText = strings.TrimPrefix(msgText, CommandPrefix)
+			args, err := parser.GetArgs(msgText)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			isActiveChannel := !chat.IsTeam
+			_, isActiveTeam := c.ActiveTeams[chat.Name]
+			if isActiveTeam && !isActiveChannel {
+				_, isActiveChannel = c.ActiveTeams[chat.Name].ActiveChannels[chat.Channel]
+			}
+			cmd, isCommand := parser.Commands[args[0]]
+			if isCommand && isActiveChannel {
+				m, err := cmd.CmdFunc(args, message, c)
+				if err, ok := err.(*cmdError); ok {
+					chat.SendMessage(fmt.Sprintf("%s: %s", err.command, err.message))
+				} else {
+					m.Channel.SendMessage(m.Message)
+				}
+			}
+		}
+	default:
+		// do nothing
+	}
+
 }

@@ -6,21 +6,25 @@ import (
 	"os"
 )
 
+const defaultFilename string = "config.json"
+
 type KeybotConfig interface {
-	Read(filename string)
-	Write(filename string)
+	Read()
+	Write()
 }
 
 type ConfigJSON struct {
+	Filename    string                      `json:"-"`
 	BotOwner    string                      `json:"botOwner"`
 	ActiveTeams map[string]ConfigActiveTeam `json:"activeTeams,omitempty"`
+	Blacklist   map[string]struct{}         `json:"blacklist,omitempty"`
 }
 
 type ConfigActiveTeam struct {
 	TeamName       string                `json:"teamName"`
 	TeamOwner      string                `json:"teamOwner"`
 	UserPrivileges []ConfigUserPrivilege `json:"userPrivileges"`
-	ActiveChannels []string              `json:"activeChannels"`
+	ActiveChannels map[string]struct{}   `json:"activeChannels"`
 }
 
 type ConfigUserPrivilege struct {
@@ -33,7 +37,12 @@ type ConfigUserPrivilege struct {
 	SetTopic       bool   `json:"setTopic"`
 }
 
-func (c *ConfigJSON) Read(filename string) {
+func (c *ConfigJSON) Read() {
+	filename := c.Filename
+	if filename == "" {
+		filename = defaultFilename
+	}
+
 	configFile, err := os.Open(filename)
 	if err != nil {
 		panic(err)
@@ -44,7 +53,12 @@ func (c *ConfigJSON) Read(filename string) {
 	json.Unmarshal([]byte(jsonBytes), &c)
 }
 
-func (c ConfigJSON) Write(filename string) {
+func (c ConfigJSON) Write() {
+	filename := c.Filename
+	if filename == "" {
+		filename = defaultFilename
+	}
+
 	configFile, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		panic(err)
