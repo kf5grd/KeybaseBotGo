@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-type chatMessageIn struct {
+type ChatMessageIn struct {
 	Source     string          `json:"source"`
 	Msg        chatRecvMessage `json:"msg"`
 	Pagination chatPagination  `json:"pagination"`
@@ -60,9 +60,9 @@ type chatPagination struct {
 	last     bool
 }
 
-func ReceiveMessage(jsonString string) chatMessageIn {
+func ReceiveMessage(jsonString string) ChatMessageIn {
 	log.Println("[ReceiveMessage]", jsonString)
-	var jsonData chatMessageIn
+	var jsonData ChatMessageIn
 	json.Unmarshal([]byte(jsonString), &jsonData)
 	return jsonData
 }
