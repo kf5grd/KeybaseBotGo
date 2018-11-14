@@ -33,6 +33,6 @@ func main() {
 	scanner := bufio.NewScanner(keybaseOutput)
 	for scanner.Scan() {
 		messageIn := api.ReceiveMessage(scanner.Text())
-		commandHandler(messageIn, c)
+		commandHandler(messageIn, &c)
 	}
 }

@@ -16,7 +16,7 @@ type cmd struct {
 	Active    bool
 }
 
-type cmdFunc func(args []string, message api.ChatMessageIn, config config.ConfigJSON) (CmdOut, error)
+type cmdFunc func(args []string, message api.ChatMessageIn, config *config.ConfigJSON) (CmdOut, error)
 
 type CmdOut struct {
 	Message string

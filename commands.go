@@ -17,7 +17,7 @@ type cmdError struct {
 func (e *cmdError) Error() string {
 	return fmt.Sprintf("%s: %s", e.command, e.message)
 }
-func cmdHelp(args []string, message api.ChatMessageIn, config *interface{}) (parser.CmdOut, error) {
+func cmdHelp(args []string, message api.ChatMessageIn, config *config.ConfigJSON) (parser.CmdOut, error) {
 	var (
 		channel api.Channel
 		response string
@@ -38,7 +38,7 @@ func cmdHelp(args []string, message api.ChatMessageIn, config *interface{}) (par
 	return parser.CmdOut{response, channel}, nil
 }
 
-func cmdPing(args []string, message api.ChatMessageIn, config *interface{}) (parser.CmdOut, error) {
+func cmdPing(args []string, message api.ChatMessageIn, config *config.ConfigJSON) (parser.CmdOut, error) {
 	var (
 		channel api.Channel
 		response string
@@ -63,7 +63,7 @@ func cmdPing(args []string, message api.ChatMessageIn, config *interface{}) (par
 	return parser.CmdOut{response, channel}, nil
 }
 
-func cmdConfig(args []string, message api.ChatMessageIn, config *interface{}) (parser.CmdOut, error) {
+func cmdConfig(args []string, message api.ChatMessageIn, config *config.ConfigJSON) (parser.CmdOut, error) {
 	var (
 		channel api.Channel
 		response string
@@ -85,13 +85,6 @@ func cmdConfig(args []string, message api.ChatMessageIn, config *interface{}) (p
 		switch strings.ToLower(args[2]) {
 		case "botowner":
 			return parser.CmdOut{}, &cmdError{args[0], "'botOwner' must be set in config file directly."}
-		case "blacklist":
-			switch strings.ToLower(args[3]) {
-			case "add":
-			case "remove":
-			default:
-				return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - Invalid action.", args[3])}
-			}
 		default:
 			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - No such variable.", args[2])}
 		}
@@ -104,6 +97,27 @@ func cmdConfig(args []string, message api.ChatMessageIn, config *interface{}) (p
 			response = fmt.Sprintf("botOwner: %s", config.BotOwner)
 		default:
 			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - No such variable.", args[2])}
+		}
+	case "blacklist":
+		switch strings.ToLower(args[2]) {
+		case "add":
+		case "remove":
+		case "read":
+			if config.Blacklist == nil {
+				config.Blacklist = make(map[string]struct{})
+				config.Write()
+			}
+			if len(config.Blacklist) > 0 {
+				response = "Blacklisted users:\n```\n"
+				for _, user := range config.Blacklist {
+					response += fmt.Sprintln(user)
+				}
+				response += "```"
+			} else {
+				response = "There are no blacklisted users."
+			}
+		default:
+			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - Invalid action.", args[3])}
 		}
 	default:
 		return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - Invalid command.", args[1])}
@@ -124,7 +138,7 @@ func init() {
 	parser.RegisterCommand("config", "Get and set config values.", true, true, cmdConfig)
 }
 
-func commandHandler(message api.ChatMessageIn, c *interface{}) {
+func commandHandler(message api.ChatMessageIn, c *config.ConfigJSON) {
 	// Get channel details
 	var chat = api.Channel{Name: message.Msg.Channel.Name}
 	if message.Msg.Channel.MembersType == "team" {
