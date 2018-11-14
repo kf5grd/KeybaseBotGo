@@ -24,6 +24,11 @@ func main() {
 		TeamOwner: "dxb",
 		ActiveChannels: map[string]struct{}{"bots": {}, "test": {}},
 	}
+	c.ActiveTeams["pho_enix"] = config.ConfigActiveTeam{
+		TeamName: "pho_enix",
+		TeamOwner: "dxb",
+		ActiveChannels: map[string]struct{}{"general": {}},
+	}
 	c.Write()
 
 	// spawn keybase chat listener and process messages as they come in
