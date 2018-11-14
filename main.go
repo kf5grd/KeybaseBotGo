@@ -32,7 +32,7 @@ func main() {
 	c.Write()
 
 	// spawn keybase chat listener and process messages as they come in
-	keybaseListen := exec.Command("keybase", "chat", "api-listen", "--local")
+	keybaseListen := exec.Command("keybase", "chat", "api-listen")
 	keybaseOutput, _ := keybaseListen.StdoutPipe()
 	keybaseListen.Start()
 	scanner := bufio.NewScanner(keybaseOutput)

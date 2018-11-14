@@ -101,10 +101,35 @@ func cmdConfig(args []string, message api.ChatMessageIn, config *config.ConfigJS
 				config.Write()
 			}
 
-			var (
-				added string
-				notadded string
-			)
+			added := ""
+			notadded := ""
+			for _, user := range args[3:] {
+				if _, ok := config.Blacklist[user]; ok {
+					notadded += fmt.Sprintf("%s, ", user)
+				} else {
+					added += fmt.Sprintf("%s, ", user)
+					config.Blacklist[user] = struct{}{}
+				}
+			}
+			havehas := "has"
+			isare := "is"
+			response = ""
+			if added != "" {
+				added = strings.TrimSuffix(added, ", ")
+				if strings.Contains(added, ",") {
+					havehas = "have"
+				}
+				response += fmt.Sprintf("%s %s been added to the blacklist.\n", added, havehas)
+			}
+			if notadded != "" {
+				notadded = strings.TrimSuffix(notadded, ", ")
+				if strings.Contains(notadded, ",") {
+					isare = "are"
+				}
+				response += fmt.Sprintf("%s %s already on the blacklist.", notadded, isare)
+			}
+			response = strings.TrimSuffix(response, "\n")
+			config.Write()
 		case "remove":
 		case "read":
 			if config.Blacklist == nil {
