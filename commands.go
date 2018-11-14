@@ -103,12 +103,20 @@ func cmdConfig(args []string, message api.ChatMessageIn, config *config.ConfigJS
 
 			added := ""
 			notadded := ""
+			errors := ""
 			for _, user := range args[3:] {
 				if _, ok := config.Blacklist[user]; ok {
 					notadded += fmt.Sprintf("%s, ", user)
 				} else {
-					added += fmt.Sprintf("%s, ", user)
-					config.Blacklist[user] = struct{}{}
+					switch user {
+					case config.BotOwner:
+						errors += fmt.Sprintf("  %s: Cannot blacklist bot owner.\n", user)
+					case message.Msg.Sender.Username:
+						errors += fmt.Sprintf("  %s: Cannot blacklist self.\n", user)
+					default:
+						added += fmt.Sprintf("%s, ", user)
+						config.Blacklist[user] = struct{}{}
+					}
 				}
 			}
 			havehas := "has"
@@ -127,6 +135,11 @@ func cmdConfig(args []string, message api.ChatMessageIn, config *config.ConfigJS
 					isare = "are"
 				}
 				response += fmt.Sprintf("%s %s already on the blacklist.", notadded, isare)
+			}
+			if errors != "" {
+				errors = strings.TrimSuffix(errors, "\n")
+				response += "\n*Errors:*\n"
+				response += errors
 			}
 			response = strings.TrimSuffix(response, "\n")
 			config.Write()
