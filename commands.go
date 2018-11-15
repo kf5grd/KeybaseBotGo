@@ -136,7 +136,7 @@ func cmdUser(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 		if teamKick.Error.Message != "" {
 			response = teamKick.Error.Message
 		} else {
-			response = fmt.Sprintf("%s successfully kicked from team.", member)
+			response = fmt.Sprintf("%s successfully kicked from team.", args[2])
 		}
 	}
 
