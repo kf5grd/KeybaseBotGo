@@ -8,6 +8,7 @@ import (
 
 type TeamAPI interface {
 	AddMembers(members map[string]string) TeamAPIResponse
+	RemoveMember(member string) TeamAPIResponse
 	ListMembers() map[string]string
 }	
 
@@ -29,6 +30,7 @@ type teamOptions struct {
 	Team      string         `json:"team,omitempty"`
 	Emails    []TeamEmail    `json:"emails,omitempty"`
 	Usernames []TeamUsername `json:"usernames,omitempty"`
+	Username  string         `json:username,omitempty"`
 }
 
 type TeamEmail struct {
