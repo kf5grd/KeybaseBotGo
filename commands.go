@@ -108,6 +108,8 @@ func cmdUser(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 		team := api.Team{Name: t}
 		members := make(map[string]string)
 		for _, m := range args[2:] {
+			m = strings.TrimPrefix(m, "@")
+			m = strings.TrimSuffix(m, ",")
 			members[m] = "reader"
 		}
 		teamAdd := team.AddMembers(members)
@@ -123,6 +125,7 @@ func cmdUser(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 
 		team := api.Team{Name: t}
 		member := args[2]
+		member = strings.TrimPrefix(member, "@")
 
 		if member == config.ActiveTeams[t].TeamOwner {
 			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You cannot kick the team owner from this team.", message.Msg.Sender.Username)}
