@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"log"
 	"os/exec"
 
 	"keybot/api"
@@ -13,11 +14,13 @@ const(
 )
 
 func main() {
+	log.Println("Reading config...")
 	c := config.ConfigJSON{}
 
 	// Read config file
 	c.Read()
 
+/*
 	c.ActiveTeams = make(map[string]config.ConfigActiveTeam)
 	c.ActiveTeams["crbot.public"] = config.ConfigActiveTeam{
 		TeamName: "crbot.public",
@@ -29,9 +32,11 @@ func main() {
 		TeamOwner: "dxb",
 		ActiveChannels: map[string]struct{}{"general": {}},
 	}
+*/
 	c.Write()
 
 	// spawn keybase chat listener and process messages as they come in
+	log.Println("Starting chat listener...")
 	keybaseListen := exec.Command("keybase", "chat", "api-listen")
 	keybaseOutput, _ := keybaseListen.StdoutPipe()
 	keybaseListen.Start()
