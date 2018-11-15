@@ -62,7 +62,7 @@ func (c ConfigJSON) Write() {
 		c.Filename = defaultFilename
 	}
 
-	configFile, err := os.OpenFile(c.Filename, os.O_WRONLY|os.O_CREATE, 0644)
+	configFile, err := os.OpenFile(c.Filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		panic(err)
 	}
