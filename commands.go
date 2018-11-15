@@ -55,6 +55,72 @@ func cmdPing(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 	return parser.CmdOut{response, channel}, nil
 }
 
+func cmdUser(args []string, message api.ChatMessageIn, config *config.ConfigJSON) (parser.CmdOut, error) {
+	var (
+		channel api.Channel
+		response string
+	)
+	switch message.Msg.Channel.MembersType {
+	case "team":
+		channel = api.Channel{true, message.Msg.Channel.Name, message.Msg.Channel.TopicName}
+	default:
+		channel = api.Channel{Name: message.Msg.Channel.Name}
+		return parser.CmdOut{}, &cmdError{args[0], "Command can only be called from inside team."}
+	}
+
+	t := message.Msg.Channel.Name
+	u := message.Msg.Sender.Username
+	privs := make(map[string]bool)
+
+	if (u == config.BotOwner) || (u == config.ActiveTeams[t].TeamOwner) {
+		privs["SetUserPriv"] = true
+		privs["AddUsers"] = true
+		privs["KickUsers"] = true
+		privs["CreateChannels"] = true
+		privs["DeleteChannels"] = true
+		privs["SetTopic"] = true
+	} else if priv, ok := config.ActiveTeams[t].UserPrivileges[u]; ok {
+		privs["SetUserPriv"] = priv.SetUserPriv
+		privs["AddUsers"] = priv.AddUsers
+		privs["KickUsers"] = priv.KickUsers
+		privs["CreateChannels"] = priv.CreateChannels
+		privs["DeleteChannels"] = priv.DeleteChannels
+		privs["SetTopic"] = priv.SetTopic
+	} else {
+		privs["SetUserPriv"] = false
+		privs["AddUsers"] = false
+		privs["KickUsers"] = false
+		privs["CreateChannels"] = false
+		privs["DeleteChannels"] = false
+		privs["SetTopic"] = false
+	}
+
+	if len(args) < 3 {
+		return parser.CmdOut{}, &cmdError{args[0], "Missing arguments."}
+	}
+
+	switch strings.ToLower(args[1]) {
+	case "add":
+		if !privs["AddUsers"] {
+			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You do not have permission to add members to *%s*.", message.Msg.Sender.Username, t)}
+		}
+
+		team := api.Team{Name: t}
+		members := make(map[string]string)
+		for _, m := range args[2:] {
+			members[m] = "reader"
+		}
+		teamAdd := team.AddMembers(members)
+		if teamAdd.Error.Message != "" {
+			response = teamAdd.Error.Message
+		} else {
+			response = fmt.Sprintf("%s successfully added to team.", strings.Join(args[2:], ", "))
+		}
+	}
+
+	return parser.CmdOut{response, channel}, nil
+}
+
 func cmdConfig(args []string, message api.ChatMessageIn, config *config.ConfigJSON) (parser.CmdOut, error) {
 	var (
 		channel api.Channel
@@ -215,6 +281,7 @@ func init() {
 	parser.RegisterCommand("help", "", false, true, cmdHelp)
 	parser.RegisterCommand("ping", "Responds with 'pong'", true, true, cmdPing)
 	parser.RegisterCommand("config", "Get and set config values.", true, true, cmdConfig)
+	parser.RegisterCommand("user", "User privilege settings.", true, true, cmdUser)
 }
 
 func commandHandler(message api.ChatMessageIn, c *config.ConfigJSON) {

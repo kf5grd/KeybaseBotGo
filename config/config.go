@@ -21,14 +21,13 @@ type ConfigJSON struct {
 }
 
 type ConfigActiveTeam struct {
-	TeamName       string                `json:"teamName"`
-	TeamOwner      string                `json:"teamOwner"`
-	UserPrivileges []ConfigUserPrivilege `json:"userPrivileges"`
-	ActiveChannels map[string]struct{}   `json:"activeChannels"`
+	TeamName       string                         `json:"teamName"`
+	TeamOwner      string                         `json:"teamOwner"`
+	UserPrivileges map[string]ConfigUserPrivilege `json:"userPrivileges"`
+	ActiveChannels map[string]struct{}            `json:"activeChannels"`
 }
 
 type ConfigUserPrivilege struct {
-	Username       string `json:"username"`
 	SetUserPriv    bool   `json:"setUserPriv"`
 	AddUsers       bool   `json:"addUsers"`
 	KickUsers      bool   `json:"kickUsers"`
