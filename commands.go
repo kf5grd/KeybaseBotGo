@@ -123,6 +123,12 @@ func cmdUser(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 
 		team := api.Team{Name: t}
 		member := args[2]
+
+		if member == config.ActiveTeams[t].TeamOwner {
+			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You cannot kick the team owner from this team.", message.Msg.Sender.Username)}
+		} else if member == config.BotOwner {
+			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You cannot kick the botOwner from this team.", message.Msg.Sender.Username)}
+		}
 		teamKick := team.RemoveMember(member)
 		if teamKick.Error.Message != "" {
 			response = teamKick.Error.Message
