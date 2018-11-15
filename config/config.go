@@ -16,6 +16,7 @@ type KeybotConfig interface {
 type ConfigJSON struct {
 	Filename    string                      `json:"-"`
 	BotOwner    string                      `json:"botOwner"`
+	BotUser     string                      `json:"botUser"`
 	ActiveTeams map[string]ConfigActiveTeam `json:"activeTeams,omitempty"`
 	Blacklist   map[string]struct{}         `json:"blacklist,omitempty"`
 }
