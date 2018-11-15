@@ -131,6 +131,8 @@ func cmdUser(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You cannot kick the team owner from this team.", message.Msg.Sender.Username)}
 		} else if member == config.BotOwner {
 			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You cannot kick the botOwner from this team.", message.Msg.Sender.Username)}
+		} else if member == config.BotUser {
+			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You cannot kick the botUser from this team.", message.Msg.Sender.Username)}
 		}
 		teamKick := team.RemoveMember(member)
 		if teamKick.Error.Message != "" {
