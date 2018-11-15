@@ -116,6 +116,19 @@ func cmdUser(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 		} else {
 			response = fmt.Sprintf("%s successfully added to team.", strings.Join(args[2:], ", "))
 		}
+	case "kick":
+		if !privs["KickUsers"] {
+			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You do not have permission to kick members from *%s*.", message.Msg.Sender.Username, t)}
+		}
+
+		team := api.Team{Name: t}
+		member := args[2]
+		teamKick := team.RemoveMember(member)
+		if teamKick.Error.Message != "" {
+			response = teamKick.Error.Message
+		} else {
+			response = fmt.Sprintf("%s successfully kicked from team.", member)
+		}
 	}
 
 	return parser.CmdOut{response, channel}, nil
