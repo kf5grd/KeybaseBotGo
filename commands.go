@@ -140,6 +140,8 @@ func cmdUser(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 		} else {
 			response = fmt.Sprintf("%s successfully kicked from team.", args[2])
 		}
+	default:
+		return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("%s - Invalid argument.", args[1])}
 	}
 
 	return parser.CmdOut{response, channel}, nil
