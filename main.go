@@ -7,11 +7,8 @@ import (
 	"os/exec"
 
 	"keybot/api"
+	"keybot/commands"
 	"keybot/config"
-)
-
-const(
-	CommandPrefix = "."
 )
 
 type keybaseStatusJSON struct {
@@ -49,6 +46,10 @@ func main() {
 		c.BotUser = keybaseStatus.Username
 		c.Write()
 	}
+	if c.CommandPrefix == "" {
+		c.CommandPrefix = "."
+		c.Write()
+	}
 
 /*
 	c.ActiveTeams = make(map[string]config.ConfigActiveTeam)
@@ -73,6 +74,6 @@ func main() {
 	scanner := bufio.NewScanner(keybaseOutput)
 	for scanner.Scan() {
 		messageIn := api.ReceiveMessage(scanner.Text())
-		commandHandler(messageIn, &c)
+		commands.CommandHandler(messageIn, &c)
 	}
 }
