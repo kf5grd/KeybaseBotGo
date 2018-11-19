@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"strings"
 	
 	"keybot/api"
@@ -21,6 +22,15 @@ type cmdFunc func(args []string, message api.ChatMessageIn, config *config.Confi
 type CmdOut struct {
 	Message string
 	Channel api.Channel
+}
+
+type CmdError struct {
+	Command string
+	Message string
+}
+
+func (e *CmdError) Error() string {
+	return fmt.Sprintf("%s: %s", e.Command, e.Message)
 }
 
 var Commands = make(map[string]*cmd)
@@ -45,4 +55,49 @@ func GetArgs(s string) ([]string, error) {
 		return nil, &cmdMissingError{"No command provided"}
 	}
 	return cmdArgs, nil
+}
+
+func CommandHandler(message api.ChatMessageIn, c *config.ConfigJSON) {
+	// if user is blacklisted, do nothing
+	if _, ok := c.Blacklist[message.Msg.Sender.Username]; ok {
+		return
+	}
+
+	// Get channel details
+	var chat = api.Channel{Name: message.Msg.Channel.Name}
+	if message.Msg.Channel.MembersType == "team" {
+		chat.IsTeam = true
+		chat.Channel = message.Msg.Channel.TopicName
+	}
+
+	switch strings.ToLower(message.Msg.Content.MsgType) {
+	case "text":
+		msgText := strings.TrimSpace(message.Msg.Content.Text.Body)
+		if strings.HasPrefix(msgText, c.CommandPrefix) {
+			msgText = strings.TrimPrefix(msgText, c.CommandPrefix)
+			args, err := GetArgs(msgText)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			isActiveChannel := !chat.IsTeam
+			_, isActiveTeam := c.ActiveTeams[chat.Name]
+			if isActiveTeam && !isActiveChannel {
+				_, isActiveChannel = c.ActiveTeams[chat.Name].ActiveChannels[chat.Channel]
+			}
+			cmd, isCommand := Commands[args[0]]
+			if isCommand && isActiveChannel {
+				m, err := cmd.CmdFunc(args, message, c)
+				if err, ok := err.(*CmdError); ok {
+					chat.SendMessage(fmt.Sprintf("%s: %s", err.Command, err.Message))
+				} else {
+					m.Channel.SendMessage(m.Message)
+				}
+			}
+		}
+	default:
+		// do nothing
+	}
+
 }

@@ -1,4 +1,4 @@
-package commands
+package main
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ func cmdUser(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 		channel = api.Channel{true, message.Msg.Channel.Name, message.Msg.Channel.TopicName}
 	default:
 		channel = api.Channel{Name: message.Msg.Channel.Name}
-		return parser.CmdOut{}, &cmdError{args[0], "Command can only be called from inside team."}
+		return parser.CmdOut{}, &parser.CmdError{args[0], "Command can only be called from inside team."}
 	}
 
 	t := message.Msg.Channel.Name
@@ -50,13 +50,13 @@ func cmdUser(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 	}
 
 	if len(args) < 3 {
-		return parser.CmdOut{}, &cmdError{args[0], "Missing arguments."}
+		return parser.CmdOut{}, &parser.CmdError{args[0], "Missing arguments."}
 	}
 
 	switch strings.ToLower(args[1]) {
 	case "add":
 		if !privs["AddUsers"] {
-			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You do not have permission to add members to *%s*.", message.Msg.Sender.Username, t)}
+			return parser.CmdOut{}, &parser.CmdError{args[0], fmt.Sprintf("@%s, You do not have permission to add members to *%s*.", message.Msg.Sender.Username, t)}
 		}
 
 		team := api.Team{Name: t}
@@ -74,7 +74,7 @@ func cmdUser(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 		}
 	case "kick":
 		if !privs["KickUsers"] {
-			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You do not have permission to kick members from *%s*.", message.Msg.Sender.Username, t)}
+			return parser.CmdOut{}, &parser.CmdError{args[0], fmt.Sprintf("@%s, You do not have permission to kick members from *%s*.", message.Msg.Sender.Username, t)}
 		}
 
 		team := api.Team{Name: t}
@@ -82,11 +82,11 @@ func cmdUser(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 		member = strings.TrimPrefix(member, "@")
 
 		if member == config.ActiveTeams[t].TeamOwner {
-			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You cannot kick the team owner from this team.", message.Msg.Sender.Username)}
+			return parser.CmdOut{}, &parser.CmdError{args[0], fmt.Sprintf("@%s, You cannot kick the team owner from this team.", message.Msg.Sender.Username)}
 		} else if member == config.BotOwner {
-			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You cannot kick the botOwner from this team.", message.Msg.Sender.Username)}
+			return parser.CmdOut{}, &parser.CmdError{args[0], fmt.Sprintf("@%s, You cannot kick the botOwner from this team.", message.Msg.Sender.Username)}
 		} else if member == config.BotUser {
-			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You cannot kick the botUser from this team.", message.Msg.Sender.Username)}
+			return parser.CmdOut{}, &parser.CmdError{args[0], fmt.Sprintf("@%s, You cannot kick the botUser from this team.", message.Msg.Sender.Username)}
 		}
 		teamKick := team.RemoveMember(member)
 		if teamKick.Error.Message != "" {
@@ -95,7 +95,7 @@ func cmdUser(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 			response = fmt.Sprintf("%s successfully kicked from team.", args[2])
 		}
 	default:
-		return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("%s - Invalid argument.", args[1])}
+		return parser.CmdOut{}, &parser.CmdError{args[0], fmt.Sprintf("%s - Invalid argument.", args[1])}
 	}
 
 	return parser.CmdOut{response, channel}, nil

@@ -1,19 +1,25 @@
-package commands
+package main
 
 import (
+	"fmt"
+	
 	"keybot/api"
 	"keybot/config"
 	"keybot/parser"
 )
 
-func cmdPing(args []string, message api.ChatMessageIn, config *config.ConfigJSON) (parser.CmdOut, error) {
+func cmdHelp(args []string, message api.ChatMessageIn, config *config.ConfigJSON) (parser.CmdOut, error) {
 	var (
 		channel api.Channel
 		response string
 	)
 
-	response = "pong"
-	
+	for _, command := range parser.Commands {
+		if command.ShowHelp {
+			response += fmt.Sprintf("`%s%s`\n  %s\n", config.CommandPrefix, command.Command, command.HelpText)
+		}
+	}
+
 	switch message.Msg.Channel.MembersType {
 	case "team":
 		channel = api.Channel{true, message.Msg.Channel.Name, message.Msg.Channel.TopicName}
@@ -24,5 +30,5 @@ func cmdPing(args []string, message api.ChatMessageIn, config *config.ConfigJSON
 }
 
 func init() {
-	parser.RegisterCommand("ping", "Responds with 'pong'", true, true, cmdPing)
+	parser.RegisterCommand("help", "", false, true, cmdHelp)
 }

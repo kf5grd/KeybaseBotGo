@@ -7,8 +7,8 @@ import (
 	"os/exec"
 
 	"keybot/api"
-	"keybot/commands"
 	"keybot/config"
+	"keybot/parser"
 )
 
 type keybaseStatusJSON struct {
@@ -63,8 +63,8 @@ func main() {
 		TeamOwner: "dxb",
 		ActiveChannels: map[string]struct{}{"general": {}},
 	}
-*/
 	c.Write()
+*/
 
 	// spawn keybase chat listener and process messages as they come in
 	log.Println("Starting chat listener...")
@@ -74,6 +74,6 @@ func main() {
 	scanner := bufio.NewScanner(keybaseOutput)
 	for scanner.Scan() {
 		messageIn := api.ReceiveMessage(scanner.Text())
-		commands.CommandHandler(messageIn, &c)
+		parser.CommandHandler(messageIn, &c)
 	}
 }

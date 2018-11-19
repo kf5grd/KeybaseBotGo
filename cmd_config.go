@@ -1,4 +1,4 @@
-package commands
+package main
 
 import (
 	"fmt"
@@ -16,39 +16,39 @@ func cmdConfig(args []string, message api.ChatMessageIn, config *config.ConfigJS
 	)
 
 	if message.Msg.Sender.Username != config.BotOwner {
-		return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("@%s, You do not have permission to configure this bot.", message.Msg.Sender.Username)}
+		return parser.CmdOut{}, &parser.CmdError{args[0], fmt.Sprintf("@%s, You do not have permission to configure this bot.", message.Msg.Sender.Username)}
 	}
 
 	if len(args) < 2 {
-		return parser.CmdOut{}, &cmdError{args[0], "Missing arguments."}
+		return parser.CmdOut{}, &parser.CmdError{args[0], "Missing arguments."}
 	}
 
 	switch strings.ToLower(args[1]) {
 	case "set":
 		if len(args) < 3 {
-			return parser.CmdOut{}, &cmdError{args[0], "Missing arguments."}
+			return parser.CmdOut{}, &parser.CmdError{args[0], "Missing arguments."}
 		}
 		switch strings.ToLower(args[2]) {
 		case "botowner":
-			return parser.CmdOut{}, &cmdError{args[0], "'botOwner' must be set in config file directly."}
+			return parser.CmdOut{}, &parser.CmdError{args[0], "'botOwner' must be set in config file directly."}
 		default:
-			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - No such variable.", args[2])}
+			return parser.CmdOut{}, &parser.CmdError{args[0], fmt.Sprintf("`%s` - No such variable.", args[2])}
 		}
 	case "get":
 		if len(args) < 3 {
-			return parser.CmdOut{}, &cmdError{args[0], "Missing arguments."}
+			return parser.CmdOut{}, &parser.CmdError{args[0], "Missing arguments."}
 		}
 		switch strings.ToLower(args[2]) {
 		case "botowner":
 			response = fmt.Sprintf("botOwner: %s", config.BotOwner)
 		default:
-			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - No such variable.", args[2])}
+			return parser.CmdOut{}, &parser.CmdError{args[0], fmt.Sprintf("`%s` - No such variable.", args[2])}
 		}
 	case "blacklist":
 		switch strings.ToLower(args[2]) {
 		case "add":
 			if len(args) < 4 {
-				return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - No users provided.", args[1])}
+				return parser.CmdOut{}, &parser.CmdError{args[0], fmt.Sprintf("`%s` - No users provided.", args[1])}
 			}
 			if config.Blacklist == nil {
 				config.Blacklist = make(map[string]struct{})
@@ -99,7 +99,7 @@ func cmdConfig(args []string, message api.ChatMessageIn, config *config.ConfigJS
 			config.Write()
 		case "remove":
 			if len(args) < 4 {
-				return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - No users provided.", args[1])}
+				return parser.CmdOut{}, &parser.CmdError{args[0], fmt.Sprintf("`%s` - No users provided.", args[1])}
 			}
 			if config.Blacklist == nil {
 				config.Blacklist = make(map[string]struct{})
@@ -150,10 +150,10 @@ func cmdConfig(args []string, message api.ChatMessageIn, config *config.ConfigJS
 				response = "There are no blacklisted users."
 			}
 		default:
-			return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - Invalid action.", args[3])}
+			return parser.CmdOut{}, &parser.CmdError{args[0], fmt.Sprintf("`%s` - Invalid action.", args[3])}
 		}
 	default:
-		return parser.CmdOut{}, &cmdError{args[0], fmt.Sprintf("`%s` - Invalid command.", args[1])}
+		return parser.CmdOut{}, &parser.CmdError{args[0], fmt.Sprintf("`%s` - Invalid command.", args[1])}
 	}
 
 	switch message.Msg.Channel.MembersType {
