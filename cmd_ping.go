@@ -8,12 +8,12 @@ import (
 
 func cmdPing(args []string, message api.ChatMessageIn, config *config.ConfigJSON) (parser.CmdOut, error) {
 	var (
-		channel api.Channel
+		channel  api.Channel
 		response string
 	)
 
 	response = "pong"
-	
+
 	switch message.Msg.Channel.MembersType {
 	case "team":
 		channel = api.Channel{true, message.Msg.Channel.Name, message.Msg.Channel.TopicName}

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	
+
 	"keybot/api"
 	"keybot/config"
 	"keybot/parser"
@@ -10,7 +10,7 @@ import (
 
 func cmdHelp(args []string, message api.ChatMessageIn, config *config.ConfigJSON) (parser.CmdOut, error) {
 	var (
-		channel api.Channel
+		channel  api.Channel
 		response string
 	)
 

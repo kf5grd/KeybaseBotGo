@@ -21,8 +21,8 @@ type chatParams struct {
 }
 
 type options struct {
-	Channel chatChannel  `json:"channel,omitempty"`
-	Message chatMessage  `json:"message,omitempty"`
+	Channel chatChannel `json:"channel,omitempty"`
+	Message chatMessage `json:"message,omitempty"`
 }
 
 type chatChannel struct {
@@ -60,7 +60,7 @@ type chatAPIError struct {
 
 func SendChatAPI(jsonData string) ChatAPIResponse {
 	/* Send JSON to Keybase Chat API */
-	log.Println("[SendChatAPI]","[out]", jsonData)
+	log.Println("[SendChatAPI]", "[out]", jsonData)
 	cmd := exec.Command("keybase", "chat", "api", "-m", jsonData)
 
 	cmdOut, err := cmd.Output()

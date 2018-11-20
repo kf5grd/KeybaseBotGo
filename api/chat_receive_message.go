@@ -23,7 +23,7 @@ type chatRecvMessage struct {
 	ChannelMention string         `json:"channel_mention"`
 }
 
-type chatMsgChannel struct{
+type chatMsgChannel struct {
 	Name        string `json:"name"`
 	Public      bool   `json:"public"`
 	MembersType string `json:"members_type"`

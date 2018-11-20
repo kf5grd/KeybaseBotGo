@@ -14,8 +14,8 @@ func (t Team) RemoveMember(member string) TeamAPIResponse {
 		member,
 	)
 
-	msgJSON.Method                   = "remove-member"
-	msgJSON.Params.Options.Team      = t.Name
+	msgJSON.Method = "remove-member"
+	msgJSON.Params.Options.Team = t.Name
 	msgJSON.Params.Options.Username = member
 
 	jsonBytes, _ := json.Marshal(msgJSON)

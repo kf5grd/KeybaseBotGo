@@ -11,7 +11,7 @@ import (
 
 func cmdConfig(args []string, message api.ChatMessageIn, config *config.ConfigJSON) (parser.CmdOut, error) {
 	var (
-		channel api.Channel
+		channel  api.Channel
 		response string
 	)
 

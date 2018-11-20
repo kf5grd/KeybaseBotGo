@@ -11,7 +11,7 @@ import (
 
 func cmdUser(args []string, message api.ChatMessageIn, config *config.ConfigJSON) (parser.CmdOut, error) {
 	var (
-		channel api.Channel
+		channel  api.Channel
 		response string
 	)
 	switch message.Msg.Channel.MembersType {

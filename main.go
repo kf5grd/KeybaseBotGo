@@ -36,7 +36,7 @@ func main() {
 	if !keybaseStatus.LoggedIn {
 		panic("Not logged in to Keybase.")
 	}
-	
+
 	log.Println("Reading config...")
 	c := config.ConfigJSON{}
 
@@ -50,21 +50,6 @@ func main() {
 		c.CommandPrefix = "."
 		c.Write()
 	}
-
-/*
-	c.ActiveTeams = make(map[string]config.ConfigActiveTeam)
-	c.ActiveTeams["crbot.public"] = config.ConfigActiveTeam{
-		TeamName: "crbot.public",
-		TeamOwner: "dxb",
-		ActiveChannels: map[string]struct{}{"bots": {}, "test": {}},
-	}
-	c.ActiveTeams["pho_enix"] = config.ConfigActiveTeam{
-		TeamName: "pho_enix",
-		TeamOwner: "dxb",
-		ActiveChannels: map[string]struct{}{"general": {}},
-	}
-	c.Write()
-*/
 
 	// spawn keybase chat listener and process messages as they come in
 	log.Println("Starting chat listener...")

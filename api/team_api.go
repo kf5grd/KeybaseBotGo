@@ -10,7 +10,7 @@ type TeamAPI interface {
 	AddMembers(members map[string]string) TeamAPIResponse
 	RemoveMember(member string) TeamAPIResponse
 	ListMembers() map[string]string
-}	
+}
 
 type Team struct {
 	Name string

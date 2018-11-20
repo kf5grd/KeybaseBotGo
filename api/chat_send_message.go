@@ -19,7 +19,7 @@ func (c Channel) SendMessage(message string) ChatAPIResponse {
 	if c.IsTeam == true && c.Channel == "" {
 		c.Channel = "general"
 	}
-	
+
 	log.Printf(
 		"[ChatAPI.SendMessage] [IsTeam: %v] [Name: %s] [Channel: %s] [Message: %s]\n",
 		c.IsTeam,
@@ -28,13 +28,13 @@ func (c Channel) SendMessage(message string) ChatAPIResponse {
 		message,
 	)
 
-	msgJSON.Method                             = "send"
-	msgJSON.Params.Options.Channel.Name        = c.Name
-	msgJSON.Params.Options.Message.Body        = message
+	msgJSON.Method = "send"
+	msgJSON.Params.Options.Channel.Name = c.Name
+	msgJSON.Params.Options.Message.Body = message
 
 	if c.IsTeam {
 		msgJSON.Params.Options.Channel.MembersType = "team"
-		msgJSON.Params.Options.Channel.TopicName   = c.Channel
+		msgJSON.Params.Options.Channel.TopicName = c.Channel
 	}
 
 	jsonBytes, _ := json.Marshal(msgJSON)

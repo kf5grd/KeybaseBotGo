@@ -14,15 +14,15 @@ func (t Team) AddMembers(members map[string]string) TeamAPIResponse {
 		members,
 	)
 
-	msgJSON.Method                   = "add-members"
-	msgJSON.Params.Options.Team      = t.Name
+	msgJSON.Method = "add-members"
+	msgJSON.Params.Options.Team = t.Name
 
 	var usernames []TeamUsername
 	for user, role := range members {
 		var username TeamUsername
 		username.Username = user
 		username.Role = role
-		
+
 		usernames = append(usernames, username)
 	}
 	msgJSON.Params.Options.Usernames = usernames

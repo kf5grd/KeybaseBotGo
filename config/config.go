@@ -30,12 +30,12 @@ type ConfigActiveTeam struct {
 }
 
 type ConfigUserPrivilege struct {
-	SetUserPriv    bool   `json:"setUserPriv"`
-	AddUsers       bool   `json:"addUsers"`
-	KickUsers      bool   `json:"kickUsers"`
-	CreateChannels bool   `json:"createChannels"`
-	DeleteChannels bool   `json:"deleteChannels"`
-	SetTopic       bool   `json:"setTopic"`
+	SetUserPriv    bool `json:"setUserPriv"`
+	AddUsers       bool `json:"addUsers"`
+	KickUsers      bool `json:"kickUsers"`
+	CreateChannels bool `json:"createChannels"`
+	DeleteChannels bool `json:"deleteChannels"`
+	SetTopic       bool `json:"setTopic"`
 }
 
 func (c *ConfigJSON) Read() {

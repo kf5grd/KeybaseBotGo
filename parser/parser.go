@@ -3,18 +3,18 @@ package parser
 import (
 	"fmt"
 	"strings"
-	
+
+	"github.com/kballard/go-shellquote"
 	"keybot/api"
 	"keybot/config"
-	"github.com/kballard/go-shellquote"
 )
 
 type cmd struct {
-	Command   string
-	HelpText  string
-	CmdFunc   cmdFunc
-	ShowHelp  bool
-	Active    bool
+	Command  string
+	HelpText string
+	CmdFunc  cmdFunc
+	ShowHelp bool
+	Active   bool
 }
 
 type cmdFunc func(args []string, message api.ChatMessageIn, config *config.ConfigJSON) (CmdOut, error)
@@ -28,11 +28,11 @@ var Commands = make(map[string]*cmd)
 
 func RegisterCommand(command, helptext string, showhelp, active bool, cmdFunc cmdFunc) {
 	Commands[command] = &cmd{
-		Command:   command,
-		HelpText:  helptext,
-		CmdFunc:   cmdFunc,
-		ShowHelp:  showhelp,
-		Active:    active,
+		Command:  command,
+		HelpText: helptext,
+		CmdFunc:  cmdFunc,
+		ShowHelp: showhelp,
+		Active:   active,
 	}
 }
 
