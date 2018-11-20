@@ -24,15 +24,6 @@ type CmdOut struct {
 	Channel api.Channel
 }
 
-type CmdError struct {
-	Command string
-	Message string
-}
-
-func (e *CmdError) Error() string {
-	return fmt.Sprintf("%s: %s", e.Command, e.Message)
-}
-
 var Commands = make(map[string]*cmd)
 
 func RegisterCommand(command, helptext string, showhelp, active bool, cmdFunc cmdFunc) {
