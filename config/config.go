@@ -6,25 +6,30 @@ import (
 	"os"
 )
 
+const defaultFilename string = "config.json"
+
 type KeybotConfig interface {
-	Read(filename string)
-	Write(filename string)
+	Read()
+	Write()
 }
 
 type ConfigJSON struct {
-	BotOwner    string             `json:"botOwner"`
-	ActiveTeams []configActiveTeam `json:"activeTeams,omitempty"`
+	Filename      string                      `json:"-"`
+	BotOwner      string                      `json:"botOwner"`
+	BotUser       string                      `json:"botUser"`
+	CommandPrefix string                      `json:"commandPrefix"`
+	ActiveTeams   map[string]ConfigActiveTeam `json:"activeTeams,omitempty"`
+	Blacklist     map[string]struct{}         `json:"blacklist,omitempty"`
 }
 
-type configActiveTeam struct {
-	TeamName       string                `json:"teamName"`
-	TeamOwner      string                `json:"teamOwner"`
-	UserPrivileges []configUserPrivilege `json:"userPrivileges"`
-	ActiveChannels []string              `json:"activeChannels"`
+type ConfigActiveTeam struct {
+	TeamName       string                         `json:"teamName"`
+	TeamOwner      string                         `json:"teamOwner"`
+	UserPrivileges map[string]ConfigUserPrivilege `json:"userPrivileges"`
+	ActiveChannels map[string]struct{}            `json:"activeChannels"`
 }
 
-type configUserPrivilege struct {
-	Username       string `json:"username"`
+type ConfigUserPrivilege struct {
 	SetUserPriv    bool   `json:"setUserPriv"`
 	AddUsers       bool   `json:"addUsers"`
 	KickUsers      bool   `json:"kickUsers"`
@@ -33,8 +38,17 @@ type configUserPrivilege struct {
 	SetTopic       bool   `json:"setTopic"`
 }
 
-func (c *ConfigJSON) Read(filename string) {
-	configFile, err := os.Open(filename)
+func (c *ConfigJSON) Read() {
+	if c.Filename == "" {
+		c.Filename = defaultFilename
+	}
+
+	// Create default config if none exists
+	if _, err := os.Stat(c.Filename); os.IsNotExist(err) {
+		c.Write()
+	}
+
+	configFile, err := os.Open(c.Filename)
 	if err != nil {
 		panic(err)
 	}
@@ -44,8 +58,12 @@ func (c *ConfigJSON) Read(filename string) {
 	json.Unmarshal([]byte(jsonBytes), &c)
 }
 
-func (c ConfigJSON) Write(filename string) {
-	configFile, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0644)
+func (c ConfigJSON) Write() {
+	if c.Filename == "" {
+		c.Filename = defaultFilename
+	}
+
+	configFile, err := os.OpenFile(c.Filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		panic(err)
 	}

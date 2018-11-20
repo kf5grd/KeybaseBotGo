@@ -1,34 +1,79 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"bufio"
+	"encoding/json"
+	"log"
+	"os/exec"
 
 	"keybot/api"
 	"keybot/config"
+	"keybot/parser"
 )
 
-const(
-	ConfigFile = "config.json"
-)
+type keybaseStatusJSON struct {
+	Username string `json:"Username"`
+	LoggedIn bool   `json:"LoggedIn"`
+}
 
-func main() {
-	c := config.ConfigJSON{}
+func getKeybaseStatus() keybaseStatusJSON {
+	cmd := exec.Command("keybase", "status", "-j")
 
-	// Create default config if none exists
-	if _, err := os.Stat(ConfigFile); os.IsNotExist(err) {
-		c.Write(ConfigFile)
+	cmdOut, err := cmd.Output()
+	if err != nil {
+		panic(err)
 	}
 
+	var retVal keybaseStatusJSON
+	json.Unmarshal(cmdOut, &retVal)
+
+	return retVal
+}
+
+func main() {
+	log.Println("Getting Keybase status...")
+	keybaseStatus := getKeybaseStatus()
+	if !keybaseStatus.LoggedIn {
+		panic("Not logged in to Keybase.")
+	}
+	
+	log.Println("Reading config...")
+	c := config.ConfigJSON{}
+
 	// Read config file
-	c.Read(ConfigFile)
+	c.Read()
+	if c.BotUser != keybaseStatus.Username {
+		c.BotUser = keybaseStatus.Username
+		c.Write()
+	}
+	if c.CommandPrefix == "" {
+		c.CommandPrefix = "."
+		c.Write()
+	}
 
-	u := api.Channel{Name: "dxb"}
-	message := fmt.Sprintf("Bot owner: %s", c.BotOwner)
-	u.SendMessage(message)
+/*
+	c.ActiveTeams = make(map[string]config.ConfigActiveTeam)
+	c.ActiveTeams["crbot.public"] = config.ConfigActiveTeam{
+		TeamName: "crbot.public",
+		TeamOwner: "dxb",
+		ActiveChannels: map[string]struct{}{"bots": {}, "test": {}},
+	}
+	c.ActiveTeams["pho_enix"] = config.ConfigActiveTeam{
+		TeamName: "pho_enix",
+		TeamOwner: "dxb",
+		ActiveChannels: map[string]struct{}{"general": {}},
+	}
+	c.Write()
+*/
 
-	c.BotOwner = "SomeOtherGuy"
-	c.Write(ConfigFile)
-	message = fmt.Sprintf("New bot owner: %s", c.BotOwner)
-	u.SendMessage(message)
+	// spawn keybase chat listener and process messages as they come in
+	log.Println("Starting chat listener...")
+	keybaseListen := exec.Command("keybase", "chat", "api-listen")
+	keybaseOutput, _ := keybaseListen.StdoutPipe()
+	keybaseListen.Start()
+	scanner := bufio.NewScanner(keybaseOutput)
+	for scanner.Scan() {
+		messageIn := api.ReceiveMessage(scanner.Text())
+		parser.CommandHandler(messageIn, &c)
+	}
 }
